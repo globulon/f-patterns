@@ -1,4 +1,6 @@
-f-web
+f-Patterns
 =====
 
-Start collecting patterns for network applications
+Explore fp patterns and
+their application
+in enterprise world
