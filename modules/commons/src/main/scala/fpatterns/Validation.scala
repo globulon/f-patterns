@@ -29,16 +29,14 @@ object Validation {
   }
 }
 
-trait SpecializedValidation {
+trait ValidationContext {
   self: Monads =>
   type Error
 
-  type ContextValidation[A] = Validation[Error, A]
+  type Validation[A] = fpatterns.Validation[Error, A]
 
-  //  implicit def monad: Applicative[ContextValidation] = validationMonad[Error]
+  protected def success[A](a: A): Validation[A] = Success(a)
 
-  protected def success[A](a: A): ContextValidation[A] = Success(a)
-
-  protected def failure[A](e: Error): ContextValidation[A] = Failure(e)
+  protected def failure[A](e: Error): Validation[A] = Failure(e)
 }
 

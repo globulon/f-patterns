@@ -2,12 +2,12 @@ package fpatterns
 
 import java.sql.Connection
 
-package object db {
-  type DB[A] = Reader[Connection, A]
+package object db extends ValidationContext with Monads {
+  type Error = String
+
+  type DB[A] = ReaderT[Validation, Connection, A]
 
   object DB {
-    def apply[A](get: Connection => A): DB[A] = new Reader[Connection, A] {
-      override val run = get
-    }
+    def apply[A](run: Connection => Validation[A]): DB[A] = ReaderT[Validation, Connection, A](run)
   }
 }

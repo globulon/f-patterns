@@ -73,4 +73,31 @@ trait Monads {
 
     def unit[A](a: => A) = Writer((implicitly[Monoid[W]].zero, a))
   }
+
+  implicit val idMonad = new Monad[Identity] {
+    def flatMap[A, B](ma: Identity[A])(f: (A) => Identity[B]) = Identity.flatMap(ma)(f)
+
+    override def map[A, B](ma: Identity[A])(f: (A) => B) = Identity.map(ma)(f)
+
+    def unit[A](a: => A) = Identity(a)
+
+    override def apply[A, B](fab: Identity[(A) => B])(fa: Identity[A]) = Identity.apply(fab)(fa)
+
+    override def map2[A, B, C](fa: Identity[A], fb: Identity[B])(f: (A, B) => C) = Identity.map2(fa, fb)(f)
+  }
+
+  implicit def readerTMonad[M[_]: Monad, Ctx] = new Monad[({ type lambda[A] = ReaderT[M, Ctx, A] })#lambda] {
+    override def map[A, B](rta: ReaderT[M, Ctx, A])(f: A => B): ReaderT[M, Ctx, B] = ReaderT.map[M, Ctx, A, B](rta)(f)
+
+    def flatMap[A, B](rta: ReaderT[M, Ctx, A])(f: A => ReaderT[M, Ctx, B]): ReaderT[M, Ctx, B] =
+      ReaderT.flatMap[M, Ctx, A, B](rta)(f)
+
+    override def map2[A, B, C](rta: ReaderT[M, Ctx, A], rtb: ReaderT[M, Ctx, B])(f: (A, B) => C): ReaderT[M, Ctx, C] =
+      ReaderT.map2[M, Ctx, A, B, C](rta, rtb)(f)
+
+    override def apply[A, B](rtf: ReaderT[M, Ctx, A => B])(rta: ReaderT[M, Ctx, A]): ReaderT[M, Ctx, B] =
+      ReaderT.apply[M, Ctx, A, B](rtf)(rta)
+
+    def unit[A](a: => A) = ReaderT.unit[M, Ctx, A](a)
+  }
 }

@@ -3,11 +3,11 @@ package fpatterns
 import org.scalatest.WordSpec
 import org.scalatest.matchers.MustMatchers
 
-trait DomainValidation extends SpecializedValidation {
+trait DomainValidation extends ValidationContext {
   self: Monads =>
   final type Error = String
 
-  final type DomainValidation[A] = ContextValidation[A]
+  final type DomainValidation[A] = Validation[A]
 }
 
 final class ValidationSpec extends MustMatchers with WordSpec with ApplicativeBuilders with Domain with DomainValidation with Monads {

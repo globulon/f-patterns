@@ -5,7 +5,7 @@ import java.sql.{ Connection, DriverManager }
 import javax.sql.DataSource
 
 trait ConnectionProvider {
-  def apply[A](db: DB[A]): A
+  def apply[A](db: DB[A]): Validation[A]
 }
 
 trait ConnectionProviders {
@@ -19,10 +19,10 @@ trait ConnectionProviders {
   def makeUnManagedProvider(driver: String, url: String): ConnectionProvider = new ConnectionProvider {
     Class.forName(driver)
 
-    def apply[A](db: DB[A]) = closing(DriverManager.getConnection(url))(commit(_)(db.run))
+    def apply[A](db: DB[A]): Validation[A] = closing(DriverManager.getConnection(url))(commit(_)(db.run))
   }
 
   def makeManagedProvider(dataSource: DataSource): ConnectionProvider = new ConnectionProvider {
-    def apply[A](db: DB[A]) = closing(dataSource.getConnection)(commit(_)(db.run))
+    def apply[A](db: DB[A]): Validation[A] = closing(dataSource.getConnection)(commit(_)(db.run))
   }
 }

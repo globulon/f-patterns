@@ -3,6 +3,7 @@ package fpatterns.db
 import domain.Domain
 import org.scalatest.WordSpec
 import org.scalatest.matchers.MustMatchers
+import fpatterns.Success
 
 final class DBSpec
     extends MustMatchers
@@ -23,7 +24,7 @@ final class DBSpec
 
   "Get User" must {
     "find a user when created" in {
-      provider(createNewUser("rabbit", "carott")) must be(Some(User("rabbit", "carott")))
+      provider(createNewUser("rabbit", "carott")) must be(Success(Some(User("rabbit", "carott"))))
     }
   }
 }
