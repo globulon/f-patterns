@@ -4,4 +4,5 @@ object Properties {
   lazy val scalaTestVer   = "1.9.1"
   lazy val scalaCheckVer  = "1.1.1"
   lazy val h2Version      = "1.3.172"
+  lazy val playVersion    = "2.1.0"
 }
