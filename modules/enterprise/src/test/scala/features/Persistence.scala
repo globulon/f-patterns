@@ -1,18 +1,18 @@
-package fpatterns.db
+package features
 
-import domain.Domain
 import fpatterns._
+import fpatterns.db._
 import fpatterns.validation._
 
-protected[db] trait Persistence {
-  self: DBActions with SQLScripts with Domain =>
-  protected[db] def createTableUser: DBResult[Unit] =
+trait Persistence {
+  self: SQLScripts with Domain =>
+  protected def createTableUser: DBResult[Unit] =
     DBResult[Unit] { connection => safely { closing(connection.createStatement())(_.execute(createUserTable)) } }
 
-  protected[db] def dropTableUser: DBResult[Unit] =
+  protected def dropTableUser: DBResult[Unit] =
     DBResult[Unit] { connection => safely { closing(connection.createStatement())(_.execute(dropUserTable)) } }
 
-  protected[db] def createUser: DBAction[User, Int] = DBAction[User, Int] { connection =>
+  protected def createUser: DBAction[User, Int] = DBAction[User, Int] { connection =>
     (user: User) => safely {
       closing(connection.prepareStatement(insertUserRecord)) { statement =>
         statement.setString(1, user.login)
@@ -22,7 +22,7 @@ protected[db] trait Persistence {
     }
   }
 
-  protected[db] def readUser: DBAction[String, Option[User]] = DBAction[String, Option[User]] { connection =>
+  protected def readUser: DBAction[String, Option[User]] = DBAction[String, Option[User]] { connection =>
     (login: String) => safely {
       closing(connection.prepareStatement(selectUserRecord)) { statement =>
         statement.setString(1, login)

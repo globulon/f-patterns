@@ -1,7 +1,7 @@
 package fpatterns.db
 
-import domain.Domain
-import fpatterns.{ Failure, Kleislis, Success }
+import features.{ SQLScripts, Persistence, DomainValidations, Domain }
+import fpatterns.{ Failure, Success }
 import org.scalatest.WordSpec
 import org.scalatest.matchers.MustMatchers
 
@@ -9,12 +9,11 @@ final class DBSpec
     extends MustMatchers
     with WordSpec
     with ConnectionProviders
+    with DB
     with SQLScripts
     with Domain
-    with DBActions
     with Persistence
-    with DomainValidations
-    with Kleislis {
+    with DomainValidations {
 
   private def provider = makeUnManagedProvider("org.h2.Driver", "jdbc:h2:mem:test")
 
