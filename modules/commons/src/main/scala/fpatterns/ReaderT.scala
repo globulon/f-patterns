@@ -27,4 +27,8 @@ object ReaderT {
     ReaderT[M, Ctx, B] { ctx => implicitly[Monad[M]].apply(rtf.run(ctx))(rta.run(ctx)) }
 
   def unit[M[_]: Monad, Ctx, A](a: A) = ReaderT[M, Ctx, A] { _ => implicitly[Monad[M]].unit(a) }
+
+  def unitT[M[_]: Monad, Ctx, A](ra: Reader[Ctx, M[A]]): ReaderT[M, Ctx, A] = new ReaderT[M, Ctx, A] {
+    def run = ra.run
+  }
 }

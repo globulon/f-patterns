@@ -1,9 +1,9 @@
 package fpatterns.db
 
 import domain.Domain
+import fpatterns.{ Failure, Kleislis, Success }
 import org.scalatest.WordSpec
 import org.scalatest.matchers.MustMatchers
-import fpatterns.Success
 
 final class DBSpec
     extends MustMatchers
@@ -11,20 +11,34 @@ final class DBSpec
     with ConnectionProviders
     with SQLScripts
     with Domain
-    with DBs {
+    with DBActions
+    with Persistence
+    with DomainValidations
+    with Kleislis {
 
-  private def provider = makeUnManagedProvider("org.h2.Driver", "jdbc:h2:memtest")
+  private def provider = makeUnManagedProvider("org.h2.Driver", "jdbc:h2:mem:test")
 
-  def createNewUser(login: String, password: String): DB[Option[User]] =
+  def insertUser(user: User): DBResult[Int] =
+    user >=: (action(validateUser) >=> createUser)
+
+  def getUser(login: String): DBResult[Option[User]] = login >=: readUser
+
+  def createDomain(user: User): DBResult[Option[User]] =
     for {
       _ <- createTableUser
-      u <- createUser(login, password)
+      _ <- insertUser(user)
+      u <- getUser(user.login)
       _ <- dropTableUser
     } yield u
 
-  "Get User" must {
-    "find a user when created" in {
-      provider(createNewUser("rabbit", "carott")) must be(Success(Some(User("rabbit", "carott"))))
+  "Create new user" must {
+    "insert a valid user" in {
+      provider(createDomain(User("rabbit", "car0tt"))) must be(Success(Some(User("rabbit", "car0tt"))))
+    }
+
+    "not insert an valid user" in {
+      provider(createDomain(User("rabbit", "carott"))) must be(Failure("password must contain at least character with 1 digit "))
     }
   }
+
 }

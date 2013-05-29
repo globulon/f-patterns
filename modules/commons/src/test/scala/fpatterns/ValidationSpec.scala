@@ -3,14 +3,14 @@ package fpatterns
 import org.scalatest.WordSpec
 import org.scalatest.matchers.MustMatchers
 
-trait DomainValidation extends ValidationContext {
+protected[fpatterns] trait TestValidation extends ValidationContext {
   self: Monads =>
   final type Error = String
 
-  final type DomainValidation[A] = Validation[A]
+  final type DomainValidation[A] = self.Validation[A]
 }
 
-final class ValidationSpec extends MustMatchers with WordSpec with ApplicativeBuilders with Domain with DomainValidation with Monads {
+final class ValidationSpec extends MustMatchers with WordSpec with ApplicativeBuilders with Domain with TestValidation with Monads {
 
   "Application on valid objects" must {
     "allow for object construction with 2 parameters" in {
