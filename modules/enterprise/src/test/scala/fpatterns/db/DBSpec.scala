@@ -17,8 +17,7 @@ final class DBSpec
 
   private def provider = makeUnManagedProvider("org.h2.Driver", "jdbc:h2:mem:test")
 
-  def insertUser(user: User): DBResult[Int] =
-    user >=: (action(validateUser) >=> createUser)
+  def insertUser(user: User): DBResult[Int] = user >=: (action(validateUser) >=> createUser)
 
   def getUser(login: String): DBResult[Option[User]] = login >=: readUser
 

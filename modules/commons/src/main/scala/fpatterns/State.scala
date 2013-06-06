@@ -3,30 +3,23 @@ package fpatterns
 trait State[S, A] extends ((S) => (S, A)) {
   self =>
 
-  def flatMap[B](continuation: A => State[S, B]) =
-    State.flatMap(self)(continuation)
+  def flatMap[B](sb: A => State[S, B]) = State.flatMap(self)(sb)
 
   def map[B](f: A => B) = State.map(self)(f)
 }
 
 object State {
-  def flatMap[S, A, B](monadicValue: State[S, A])(continuation: A => State[S, B]) =
-    new State[S, B] {
+  def flatMap[S, A, B](sa: State[S, A])(asb: A => State[S, B]) = new State[S, B] {
       def apply(state: S) = {
-        val tuple = monadicValue(state)
-        val bindingResult = tuple._2
-        val newState = tuple._1
-        continuation(bindingResult)(newState)
+        val (newState, result) = sa(state)
+        asb(result)(newState)
       }
     }
 
-  def map[S, A, B](monadicValue: State[S, A])(f: A => B) =
-    new State[S, B] {
+  def map[S, A, B](sa: State[S, A])(f: A => B) = new State[S, B] {
       def apply(state: S) = {
-        val tuple = monadicValue(state)
-        val bindingResult = tuple._2
-        val newState = tuple._1
-        (newState, f(bindingResult))
+        val (newState, result) = sa(state)
+        (newState, f(result))
       }
     }
 
