@@ -1,5 +1,5 @@
 package fpatterns
 
-trait Domain {
-  case class User(login: String, password: String)
+protected trait Domain {
+  protected case class User(login: String, password: String)
 }

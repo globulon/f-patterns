@@ -30,5 +30,4 @@ trait ResponseCombinators {
   def contentLength: Long => TransformResponse = header[Long]("content-length")
 
   def jsonOk(json: String) = ok |+| applicationJson |+| contentLength(json.getBytes.length)
-
 }
