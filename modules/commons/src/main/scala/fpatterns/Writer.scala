@@ -21,7 +21,7 @@ object Writer {
   }
 
   def flatMap[W: Monoid, A, B](wa: Writer[W, A])(f: A => Writer[W, B]): Writer[W, B] = new Writer[W, B] {
-    override val get = f(wa.get._2) match {
+    override def get = f(wa.get._2) match {
       case Writer((w, b)) => (implicitly[Monoid[W]].op(wa.get._1, w), b)
     }
   }

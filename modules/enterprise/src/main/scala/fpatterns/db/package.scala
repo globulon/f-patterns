@@ -16,8 +16,4 @@ package object db {
   object DBAction {
     def apply[A, B](run: Connection => A => DomainValidation[B]): DBAction[A, B] = Reader(run)
   }
-
-  trait ConnectionProvider {
-    def apply[A](db: DBResult[A]): DomainValidation[A]
-  }
 }

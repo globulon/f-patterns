@@ -1,7 +1,5 @@
 package fpatterns
 
-import scala.reflect.ClassTag
-
 trait RunnableST[A] {
   def apply[S]: ST[S, A]
 }
@@ -35,7 +33,7 @@ object ST {
     }
   }
 
-  def run[A](r: RunnableST[A]): A  = r.apply[Unit].run(())._1
+  def run[A](r: RunnableST[A]): A = r.apply[Unit].run(())._1
 }
 
 sealed trait STRef[S, A] {
@@ -53,7 +51,7 @@ sealed trait STRef[S, A] {
 }
 
 object STRef {
-  def apply[S, A](a: A): ST[S, STRef[S, A]] =  ST[S, STRef[S, A]](new STRef[S, A]{
+  def apply[S, A](a: A): ST[S, STRef[S, A]] = ST[S, STRef[S, A]](new STRef[S, A] {
     protected var cell = a
   })
 }

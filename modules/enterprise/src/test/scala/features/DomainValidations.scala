@@ -1,12 +1,13 @@
 package features
 
-import fpatterns._
-import fpatterns.validation.DomainValidation
+import fpatterns.{ Success, Failure }
+import fpatterns.validation._
 
 trait DomainValidations {
   self: Domain =>
   type Validate[A] = A => DomainValidation[A]
   type ValidateUser = Validate[User]
+  type ValidateAddress = Validate[Address]
 
   protected def existLogin: ValidateUser = {
     case user if user.login.nonEmpty => Success(user)
@@ -28,4 +29,17 @@ trait DomainValidations {
 
   protected def validateUser: ValidateUser =
     user => (existLogin(user) |@| existPassword(user) |@| checkPassword(user)) { (_, _, _) => user }
+
+  protected def validateAddressStreet: ValidateAddress = {
+    case address if address.street.nonEmpty => Success(address)
+    case _                                  => DomainError("Address street must not be empty")
+  }
+
+  protected def validateAddressStreetNumber: ValidateAddress = {
+    case address if address.number > 0 => Success(address)
+    case _                             => DomainError("Address street number must be greater than 0")
+  }
+
+  protected def validateAddress: ValidateAddress = address =>
+    (validateAddressStreet(address) |@| validateAddressStreetNumber(address)) { (_, _) => address }
 }

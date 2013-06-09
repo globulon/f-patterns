@@ -1,6 +1,10 @@
 package fpatterns
 
-sealed trait Validation[+E, +A]
+sealed trait Validation[+E, +A] {
+  def map[B](f: A => B): Validation[E, B] = Validation.map(this)(f)
+
+  def flatMap[EE >: E, B](f: A => Validation[EE, B]): Validation[EE, B] = Validation.flatMap[E, EE, A, B](this)(f)
+}
 
 case class Failure[E, A](tail: Seq[E]) extends Validation[E, A]
 

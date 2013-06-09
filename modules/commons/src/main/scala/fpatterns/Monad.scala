@@ -47,12 +47,27 @@ trait Monads extends ApplicativeBuilders {
 
       override def map[A, B](s: State[S, A])(f: (A) => B): State[S, B] = State.map(s)(f)
 
-      override def map2[A, B, C](fa: State[S, A], fb: State[S, B])(f: (A, B) => C) =
+      override def apply[A, B](sf: State[S, A => B])(sa: State[S, A]): State[S, B] =
         for {
-          a <- fa
-          b <- fb
-        } yield f(a, b)
+          f <- sf
+          a <- sa
+        } yield f(a)
     }
+
+  def stateTMonad[S, M[_]: Monad] = new Monad[({ type lambda[A] = StateT[S, M, A] })#lambda] {
+    private def M = implicitly[Monad[M]]
+
+    def unit[A](a: => A): StateT[S, M, A] = StateT[S, M, A] { s => M.unit[(S, A)]((s, a)) }
+
+    def flatMap[A, B](ma: StateT[S, M, A])(f: (A) => StateT[S, M, B]): StateT[S, M, B] = StateT.flatMap(ma)(f)
+
+    override def map[A, B](ma: StateT[S, M, A])(f: (A) => B): StateT[S, M, B] = StateT.map(ma)(f)
+
+    override def apply[A, B](stf: StateT[S, M, A => B])(sta: StateT[S, M, A]): StateT[S, M, B] = for {
+      f <- stf
+      a <- sta
+    } yield f(a)
+  }
 
   implicit def validationMonad[E]: Monad[({ type lambda[A] = Validation[E, A] })#lambda] =
     new Monad[({ type lambda[A] = Validation[E, A] })#lambda] {

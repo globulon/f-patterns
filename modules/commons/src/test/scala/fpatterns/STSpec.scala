@@ -1,12 +1,12 @@
 package fpatterns
 
-import org.scalatest.matchers.MustMatchers
 import org.scalatest.WordSpec
+import org.scalatest.matchers.MustMatchers
 
 final class STSpec extends MustMatchers with WordSpec {
   "local state modification" must {
     "compose monadically" in {
-      ST.run(runnable) must be ((2,3))
+      ST.run(runnable) must be((2, 3))
     }
   }
 
