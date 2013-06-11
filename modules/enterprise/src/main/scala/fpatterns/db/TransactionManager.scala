@@ -18,7 +18,7 @@ trait TransactionManager {
 
   private def makeCommit[A](dba: DBResult[A]): StateT[Connection, DomainValidation, A] =
     for {
-      _ <- setAutocommit(false)
+      _ <- setAutocommit(b = false)
       a <- run(dba)
       _ <- commit
     } yield a

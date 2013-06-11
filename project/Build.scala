@@ -1,26 +1,8 @@
 import sbt._
-import Keys._
+import sbt.Keys._
 import com.typesafe.sbt.SbtScalariform._
 
-object BuildSettings {
-  import Properties._
-  lazy val buildSettings = Defaults.defaultSettings ++ Seq (
-    organization        := "com.promindis",
-    version             := appVer,
-    scalaVersion        := scalaVer,
-    scalacOptions       := Seq("-unchecked", "-deprecation"),
-    ivyValidate         := false
-  )
-}
-
-object Resolvers {
-  lazy val typesafeReleases = "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
-  lazy val scalaToolsRepo = "sonatype-oss-public" at "https://oss.sonatype.org/content/groups/public/"
-  lazy val h2Repo =  "H2 repo" at "http://hsql.sourceforge.net/m2-repo/"
-  lazy val repositories = Seq(typesafeReleases, scalaToolsRepo)
-}
-
-object TestDependencies {
+object Dependencies {
   import Properties._
   lazy val scalaTest = "org.scalatest" %% "scalatest" % scalaTestVer % "test" withSources() withJavadoc()
   lazy val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.10.0" %  "test" withSources() withJavadoc()
@@ -30,7 +12,7 @@ object TestDependencies {
 
 object ApplicationBuild extends Build {
   import Resolvers._
-  import TestDependencies._
+  import Dependencies._
   import BuildSettings._
   import CodeStyle._
 
@@ -51,6 +33,7 @@ object ApplicationBuild extends Build {
               Seq (libraryDependencies ++= Seq(scalaTest, scalaCheck, h2Db))
   ).settings(defaultScalariformSettings: _*)
     .settings(scalacOptions ++= Seq("-feature", "-target:jvm-1.7"))
+    .settings(parallelExecution in Test := false)
     .settings(ScalariformKeys.preferences := formattingPreferences)
     .settings(resolvers ++= repositories)
     .dependsOn(commonPatterns)
