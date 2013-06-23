@@ -24,7 +24,7 @@ trait DomainValidations {
   protected def checkPassword: ValidateUser = user =>
     passwordRegex.findFirstMatchIn(user.password) match {
       case Some(_) => Success(user)
-      case _       => Failure("password must contain at least character with 1 digit ")
+      case _       => Failure("password must contain at least 6 character with 1 digit ")
     }
 
   protected def validateUser: ValidateUser =

@@ -4,33 +4,34 @@ import fpatterns.test.helpers.Assertions
 import org.scalatest.{ BeforeAndAfterAll, WordSpec }
 import org.scalatest.matchers.MustMatchers
 
-final class DBSpec extends MustMatchers
+final class PersistenceContextSpec extends MustMatchers
     with WordSpec
     with PersistenceContextFixture
+    with PersistenceContext
     with Assertions
     with BeforeAndAfterAll {
 
   "Create new user" must {
     "insert a valid user" in {
-      checkSuccess(inTx(createDomain(User(0, "Thumper", "car0tt")))) { user =>
+      checkSuccess(transact(createDomain(User(0, "Thumper", "car0tt")))) { user =>
         user map (_.login) must not(be(0))
         user map (_.login) must be(Some("Thumper"))
         user map (_.password) must be(Some("car0tt"))
       }
 
-      checkSuccess(readOnly(findUser("Thumper")))(_ must (not(be(None))))
+      checkSuccess(readOnly(findUser("Thumper")))(_ must not(be(None)))
     }
 
     "not insert an invalid user" in {
-      checkFailure(inTx(createDomain(User(0, "rabbit", "carott")))) {
-        _.mkString must include("password must contain at least character with 1 digit ")
+      checkFailure(transact(createDomain(User(0, "rabbit", "carott")))) {
+        _.mkString must include("password must contain at least 6 character with 1 digit ")
       }
     }
   }
 
   "Create user and Address" must {
     "create both entities" in {
-      checkSuccess(inTx(createDomains(User(0, "bambi", "fl0wer"), Address(0, "woods alley", 7)))) {
+      checkSuccess(transact(createDomains(User(0, "bambi", "fl0wer"), Address(0, "woods alley", 7)))) {
         case (user, address) =>
           user.login must not(be(0))
           user.login must be("bambi")
@@ -42,27 +43,27 @@ final class DBSpec extends MustMatchers
       }
 
       checkSuccess(readOnly(findUser("bambi"))) { bambi =>
-        bambi must (not(be(None)))
+        bambi must not(be(None))
         bambi foreach { deer =>
-          checkSuccess(readOnly(findAddress(deer)))(_ must (not(be(None))))
+          checkSuccess(readOnly(findAddress(deer)))(_ must not(be(None)))
         }
       }
     }
 
     "rollback all" in {
-      checkFailure(inTx(createDomains(User(0, "Flower", "bamb1no"), Address(0, "woods alley", -1)))) {
+      checkFailure(transact(createDomains(User(0, "Flower", "bamb1no"), Address(0, "woods alley", -1)))) {
         _.mkString must include("Address street number must be greater than 0")
       }
 
-      checkSuccess(readOnly(findUser("Flower")))(_ must (be(None)))
+      checkSuccess(readOnly(findUser("Flower")))(_ must be(None))
     }
   }
 
   override protected def beforeAll() {
-    checkSuccess(inTx(createSchema)) { _ => () }
+    checkSuccess(transact(createSchema)) { _ => () }
   }
 
   override protected def afterAll() {
-    checkSuccess(inTx(dropSchema)) { _ => () }
+    checkSuccess(transact(dropSchema)) { _ => () }
   }
 }
