@@ -38,6 +38,18 @@ object ApplicationBuild extends Build {
     .settings(resolvers ++= repositories)
     .dependsOn(commonPatterns)
 
+  val samples = Project(
+    id = "samples",
+    base = file("./modules/samples"),
+    settings = buildSettings ++ Seq(resolvers ++= Seq(typesafeReleases, scalaToolsRepo, h2Repo)) ++ Seq(scalacOptions ++= Seq("-feature", "-target:jvm-1.7")) ++
+      Seq (libraryDependencies ++= Seq(scalaTest, scalaCheck))
+  ).settings(defaultScalariformSettings: _*)
+    .settings(scalacOptions ++= Seq("-feature", "-target:jvm-1.7"))
+    .settings(ScalariformKeys.preferences := formattingPreferences)
+    .settings(resolvers ++= repositories)
+    .dependsOn(enterprisePatterns)
+
+
   val playModule = Project(
     id = "f-play",
     base = file("./modules/f-play"),
@@ -53,5 +65,5 @@ object ApplicationBuild extends Build {
   val allPatterns = Project(
   	id = "f-patterns",
   	base = file(".")
-  ) aggregate (commonPatterns, enterprisePatterns, playModule)
+  ) aggregate (commonPatterns, enterprisePatterns, samples, playModule)
 }
