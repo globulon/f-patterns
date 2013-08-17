@@ -7,7 +7,7 @@ import fpatterns.validation._
 trait Persistence {
   self: SQLScripts with Domain =>
   private def executeStatment(script: String): DBResult[Unit] =
-    DBResult[Unit] { connection => safely { closing(connection.createStatement())(_.execute(script)) } }
+    DBResult[Unit] { connection => safe { closing(connection.createStatement())(_.execute(script)) } }
 
   protected def createTableUser: DBResult[Unit] = executeStatment(createUserTable)
 
@@ -18,7 +18,7 @@ trait Persistence {
   protected def dropTableAddress: DBResult[Unit] = executeStatment(dropAddressTable)
 
   protected def createUser: DBAction[User, Int] = DBAction[User, Int] { connection =>
-    (user) => safely {
+    (user) => safe {
       closing(connection.prepareStatement(insertUserRecord)) { statement =>
         statement.setString(1, user.login)
         statement.setString(2, user.password)
@@ -28,7 +28,7 @@ trait Persistence {
   }
 
   protected def createAddress(user: User): DBAction[Address, Int] = DBAction[Address, Int] { connection =>
-    (address) => safely {
+    (address) => safe {
       closing(connection.prepareStatement(insertAddressRecord)) { statement =>
         statement.setString(1, address.street)
         statement.setInt(2, address.number)
@@ -39,7 +39,7 @@ trait Persistence {
   }
 
   protected def readUser: DBAction[String, Option[User]] = DBAction[String, Option[User]] { connection =>
-    (login) => safely {
+    (login) => safe {
       closing(connection.prepareStatement(selectUserByLogin)) { statement =>
         statement.setString(1, login)
         closing(statement.executeQuery()) { rs =>
@@ -53,7 +53,7 @@ trait Persistence {
   }
 
   protected def readAddress: DBAction[User, Option[Address]] = DBAction[User, Option[Address]] { connection =>
-    (user) => safely {
+    (user) => safe {
       closing(connection.prepareStatement(selectAddressByUser)) { statement =>
         statement.setInt(1, user.id)
         closing(statement.executeQuery()) { rs =>

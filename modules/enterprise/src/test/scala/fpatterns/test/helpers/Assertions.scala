@@ -25,13 +25,13 @@ trait AsyncAssertions extends Assertions {
   self: Suite with AsyncContext =>
 
   protected def checkAsyncSuccess[A](v: Par[DomainValidation[A]])(f: A => Unit) =
-    safely(run(v)) match {
+    safe(run(v)) match {
       case Success(result) => checkSuccess(result)(f)
       case Failure(ms)     => fail(s"Failure running Par: [$ms]")
     }
 
   protected def checkAsyncFailure[A](v: Par[DomainValidation[A]])(f: Seq[String] => Unit) =
-    safely(run(v)) match {
+    safe(run(v)) match {
       case Success(result) => checkFailure(result)(f)
       case Failure(ms)     => fail(s"Failure running Par: [$ms]")
     }

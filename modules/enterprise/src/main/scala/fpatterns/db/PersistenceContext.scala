@@ -1,6 +1,6 @@
 package fpatterns.db
 
-import fpatterns.async.{AsyncContext, Async, Par}
+import fpatterns.async.{ AsyncContext, Async, Par }
 import fpatterns.validation._
 
 trait PersistenceContext extends TransactionManager with DB {
