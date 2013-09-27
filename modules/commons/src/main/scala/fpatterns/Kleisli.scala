@@ -7,6 +7,8 @@ trait Kleisli[M[_], A, B] {
 
   def >=>[C](other: Kleisli[M, B, C])(implicit m: Monad[M]): Kleisli[M, A, C] = Kleisli.compose(this, other)
 
+  def >=>[C](other: B => M[C])(implicit m: Monad[M]): Kleisli[M, A, C] = this >=> Kleisli[M, B, C](other)
+
   def >=:(a: A): M[B] = Kleisli.run(this)(a)
 }
 
