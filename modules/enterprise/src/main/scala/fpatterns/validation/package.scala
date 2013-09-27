@@ -15,14 +15,14 @@ package object validation {
 
   protected val defaultExceptionHandling: Throwable => String = "%s" format (_)
 
-  def safely[A](process: => A, onError: => (Throwable) => String = defaultExceptionHandling): DomainValidation[A] =
+  def safe[A](process: => A, onError: => (Throwable) => String = defaultExceptionHandling): DomainValidation[A] =
     catching(classOf[Throwable]).either(process) match {
       case Right(result)   => Success(result)
       case Left(exception) => Failure(onError(exception))
     }
 
-  def safe[A, B](f: A => B, onError: => (Throwable) => String = defaultExceptionHandling): A => DomainValidation[B] =
-    a => safely(f(a))
+  def safely[A, B](f: A => B, onError: => (Throwable) => String = defaultExceptionHandling): A => DomainValidation[B] =
+    a => safe(f(a))
 
   def whenFail[A, B](v: A => DomainValidation[B])(g: (DomainValidation[B], A) => DomainValidation[B]): A => DomainValidation[B] =
     (a) => v(a) match {

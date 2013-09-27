@@ -17,7 +17,7 @@ trait DB {
     ReaderT.unitT(M.map2(M.unit(a), dba) { (a, k) => a >=: k })
 
   private def compose[A, B, C](dba: DBAction[A, B], dbb: DBAction[B, C]): DBAction[A, C] =
-    M.map2(dba, dbb) { (fa, fb) => (fa >=> fb).run }
+    M.map2(dba, dbb) { (fa, fb) => (kleisi(fa) >=> fb).run }
 
   protected implicit class RichDBAction[A, B](val dba: DBAction[A, B]) {
     def >=>[C](dbb: DBAction[B, C]): DBAction[A, C] = compose[A, B, C](dba, dbb)
